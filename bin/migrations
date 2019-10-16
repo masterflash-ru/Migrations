@@ -4,6 +4,8 @@
  */
 
 namespace Mf\Migrations;
+use Symfony\Component\Console\Application;
+
 
 // Setup/verify autoloading
 if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
@@ -15,5 +17,15 @@ if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
     exit(1);
 }
 
-$command = new Command();
-exit($command(array_slice($argv, 1)));
+$application = new Application();
+
+$application->add(new Generate());
+
+
+$application->run();
+
+
+
+
+//$command = new Command();
+//exit($command(array_slice($argv, 1)));
