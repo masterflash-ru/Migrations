@@ -1,0 +1,43 @@
+{
+    "name": "masterflash-ru/migrations",
+    "description": "Система миграций базы данных, версионирование базы отдельных пакетов",
+    "type": "Service",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "masterflash"
+    ],
+    "homepage": "https://masterflash.ru/",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.1",
+        "zendframework/zend-code": "^3.2",
+        "masterflash-ru/ado": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mf\\Migrations\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mf\\Migrations\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.1-dev",
+            "dev-develop": "0.0.1-dev"
+        },
+        "zf": {
+            "component": "Mf\\Migrations",
+            "config-provider": "masterflash-ru\\Mf\\Migrations\\ConfigProvider"
+        }
+    },
+    "scripts":{
+        "migrations":"migrations"
+    },
+    "bin": [
+        "bin/migrations"
+    ]
+}
