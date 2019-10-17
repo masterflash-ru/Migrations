@@ -12,7 +12,7 @@ use ArrayIterator;
 use ReflectionClass;
 use ReflectionProperty;
 use ADO\Service\RecordSet;
-
+use DateTimeImmutable;
 
 /**
  * Shared functionality
@@ -86,8 +86,10 @@ trait ConfigDiscoveryTrait
         //ищем среди всех классов все миграции, что бы сделать анализ
         $classes=array_filter(get_declared_classes() ,function($c){return preg_match('/(Version(\d+))/', $c);} );
         $classes_rez = new ArrayIterator();
+        //на случай, если введеное пространство не будет найдено
+        $this->rs->Filter="version='-1'";
+
         foreach ($classes as $class){
-            
             $r=new ReflectionClass($class);
             $ns=$r->getNamespaceName();
             if ((!empty($namespace) && $namespace!=$ns) || !$r->implementsInterface('Mf\Migrations\MigrationInterface')){
@@ -95,21 +97,33 @@ trait ConfigDiscoveryTrait
             }
             $description=$r->getProperty('description');
             preg_match('/(Version(\d+))/', $r->getShortName(), $matches);
-            $this->rs->Find("version='{$matches[2]}' and namespace='{$ns}'");
-            
+            $this->rs->Filter="version='{$matches[2]}' and namespace='{$ns}'";
+
             if (is_null($applied) || $applied!==(int)$this->rs->EOF) {
                 $classes_rez->append([
                     "class_name"=>$r->getShortName(),
                     "namespace"=>$ns,
                     'version' =>$matches[2],
                     'description' =>$description->getValue(),
-                    'applied' =>!$this->rs->EOF,
+                    'applied' =>boolval($this->rs->RecordCount),
                 ]);
             }
         }
-            print_r($classes_rez);
-        
+        $classes_rez->uasort(function ($a, $b) {
+            if ($a['version'] == $b['version']) {
+                return 0;
+            }
+            return ($a['version'] < $b['version']) ? -1 : 1;
+        });
 
+        return $classes_rez;
     }
     
+    /**
+    * форматировать дату-время из имени миграции
+    */
+    public function datetimeFormat($str)
+    {
+        return DateTimeImmutable::createFromFormat("YmdHis", $str)->format('Y-m-d H:i:s');
+    }
 }
