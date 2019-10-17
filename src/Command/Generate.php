@@ -2,7 +2,7 @@
 /**
  */
 
-namespace Mf\Migrations;
+namespace Mf\Migrations\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,19 +18,15 @@ class Generate extends Command
 
     protected static $defaultName = 'generate';
 
-    public function __construct()
-    {
-        $this->ZfInit();
-        parent::__construct();
-    }
     
     protected function configure()
     {
-        $this->addArgument('namespace', InputArgument::REQUIRED, 'Namespace');
+        $this->addArgument('namespace', InputArgument::OPTIONAL, 'Namespace');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->ZfInit();
         $migration_folder=rtrim(getcwd().DIRECTORY_SEPARATOR.$this->config["migrations"]['dir'],DIRECTORY_SEPARATOR);
         //создадим папку если ее нет
         if (!is_dir($migration_folder)){

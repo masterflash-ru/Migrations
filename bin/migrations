@@ -6,6 +6,7 @@
 namespace Mf\Migrations;
 use Symfony\Component\Console\Application;
 
+chdir(__DIR__."/../../../..");
 
 // Setup/verify autoloading
 if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
@@ -19,13 +20,13 @@ if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
 
 $application = new Application();
 
-$application->add(new Generate());
+$application->add(new Command\Generate());
+$application->add(new Command\Status());
 
+
+$help=new Command\Help();
+$application->add($help);
+$application->setDefaultCommand($help->getName());
 
 $application->run();
 
-
-
-
-//$command = new Command();
-//exit($command(array_slice($argv, 1)));
