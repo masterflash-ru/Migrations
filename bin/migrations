@@ -4,7 +4,16 @@
  */
 
 namespace Mf\Migrations;
+
+
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\QuestionHelper;
+
+use Zend\Mvc\Application as ZfApplication;
+use Zend\Stdlib\ArrayUtils;
+
+
 
 chdir(__DIR__."/../../../..");
 
@@ -18,15 +27,27 @@ if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
     exit(1);
 }
 
-$application = new Application();
+//инициализация приложения ZF3
+$appConfig = require  getcwd().'/config/application.config.php';
+if (file_exists( getcwd().'/config/development.config.php')) {
+    $appConfig = ArrayUtils::merge($appConfig, require  getcwd().'/config/development.config.php');
+}
+$zf=ZfApplication::init($appConfig);
+$ServiceManager=$zf->getServiceManager();
 
-$application->add(new Command\Generate());
-$application->add(new Command\Status());
+
+$application = new Application('Zend Framework Migration','0.0.1');
+$helperSet=new helperSet();
+$helperSet->set(new QuestionHelper(), 'question');
+$application->setHelperSet($helperSet);
+$application->add(new Command\Generate($ServiceManager));
+$application->add(new Command\Status($ServiceManager));
+$application->add(new Command\Migrate($ServiceManager));
 
 
-$help=new Command\Help();
-$application->add($help);
-$application->setDefaultCommand($help->getName());
+//$help=new Command\Help();
+//$application->add($help);
+//$application->setDefaultCommand($help->getName());
 
 $application->run();
 

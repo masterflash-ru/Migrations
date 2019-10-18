@@ -2,8 +2,8 @@
 
 namespace Mf\Migrations\Command;
 
-use Zend\Mvc\Application;
-use Zend\Stdlib\ArrayUtils;
+use Symfony\Component\Console\Command\Command;
+
 use Mf\Migrations\Lib\MigrationsFilterIterator;
 use RecursiveDirectoryIterator;
 use FilesystemIterator;
@@ -13,22 +13,17 @@ use ReflectionClass;
 use ReflectionProperty;
 use ADO\Service\RecordSet;
 use DateTimeImmutable;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Zend\I18n\Translator\Translator;
+use Exception;
 
 /**
- * Shared functionality
+ * общий функционал
  */
-trait ConfigDiscoveryTrait
+abstract class AbstractCommand extends Command
 {
-    //SQL создания тублицы для разных DB
-    protected $create=[
-        "mysql"=>"CREATE TABLE `migration_versions` (
-                `version` varchar(20) DEFAULT NULL COMMENT 'версия файла (вырезано из имени)',
-                `namespace` char(255) DEFAULT NULL COMMENT 'пространство имен',
-                `executed_at` datetime DEFAULT NULL COMMENT 'дата загрузки миграции',
-                PRIMARY KEY (`version`),
-                KEY `namespace` (`namespace`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    ];
     
     /**
     * ServiceManager ZF3 полностью инициализаированный
@@ -48,25 +43,36 @@ trait ConfigDiscoveryTrait
     /**
     * RS выборки всех миграций из базы
     */
-    protected $rs;
+    protected $rs=null;
+    
+    /**
+    * переводчик ZF3
+    */
+    protected $translator;
+    
+    /*
+    * флаг отсутсвия таблицы с миграциями
+    */
+    protected $have_db_migration=true;
+    
+    /**
+    * счетчик кол-ва загруженных миграций
+    * массив, ключ это пространство имен
+    */
+    protected $counter_executed_migrations=[];
     
     /**
     * инициализация приложения ZF3, 
     */
-    public function ZfInit()
+    public function __construct($ServiceManager)
     {
-        $appConfig = require  getcwd().'/config/application.config.php';
-        if (file_exists( getcwd().'/config/development.config.php')) {
-            $appConfig = ArrayUtils::merge($appConfig, require  getcwd().'/config/development.config.php');
-        }
-        $zf=Application::init($appConfig);
-        $this->ServiceManager=$zf->getServiceManager();
-        $this->connection=$this->ServiceManager->get('DefaultSystemDb');
+        $this->ServiceManager=$ServiceManager;
         $this->config=$this->ServiceManager->get('config');
-        $this->rs=new RecordSet();
-        $this->rs->CursorType =adOpenKeyset;
-        $this->rs->MaxRecords=0;
-        $this->rs->Open("select * from migration_versions",$this->connection);
+        $this->connection=$this->ServiceManager->get($this->config['migrations']["connection"]);
+    
+        $this->translator = new Translator();
+        $this->translator->addTranslationFile("PhpArray", __DIR__."/../i18/ru.php","default","ru_RU");
+        parent::__construct();
     }
     
     /**
@@ -76,18 +82,23 @@ trait ConfigDiscoveryTrait
     */
     public function  searchMigrations ($namespace=null, $applied=null)
     {
+        $this->counter_executed_migrations=[];
         $dirItr = new RecursiveDirectoryIterator(getcwd(),FilesystemIterator::SKIP_DOTS);
         $filterItr = new MigrationsFilterIterator($dirItr);
         
         foreach(new RecursiveIteratorIterator($filterItr) as $FileInfo) {
             require_once $FileInfo->getpathName();
         }
+        $this->readRs();
         
         //ищем среди всех классов все миграции, что бы сделать анализ
         $classes=array_filter(get_declared_classes() ,function($c){return preg_match('/(Version(\d+))/', $c);} );
         $classes_rez = new ArrayIterator();
+        
         //на случай, если введеное пространство не будет найдено
-        $this->rs->Filter="version='-1'";
+        if ($this->have_db_migration){
+            $this->rs->Filter="version='-1'";
+        }
 
         foreach ($classes as $class){
             $r=new ReflectionClass($class);
@@ -97,7 +108,11 @@ trait ConfigDiscoveryTrait
             }
             $description=$r->getProperty('description');
             preg_match('/(Version(\d+))/', $r->getShortName(), $matches);
-            $this->rs->Filter="version='{$matches[2]}' and namespace='{$ns}'";
+            if ($this->have_db_migration){
+                $ns1=str_replace('\\','\\\\',$ns); //временный костыль до выяснения работы фильтра
+                $this->rs->Filter="version='{$matches[2]}' and namespace='{$ns1}'";
+            }
+            
 
             if (is_null($applied) || $applied!==(int)$this->rs->EOF) {
                 $classes_rez->append([
@@ -107,6 +122,12 @@ trait ConfigDiscoveryTrait
                     'description' =>$description->getValue(),
                     'applied' =>boolval($this->rs->RecordCount),
                 ]);
+                if (!isset($this->counter_executed_migrations[$ns])){
+                    $this->counter_executed_migrations[$ns]=1;
+                } else {
+                    $this->counter_executed_migrations[$ns]++;
+                }
+
             }
         }
         $classes_rez->uasort(function ($a, $b) {
@@ -126,4 +147,37 @@ trait ConfigDiscoveryTrait
     {
         return DateTimeImmutable::createFromFormat("YmdHis", $str)->format('Y-m-d H:i:s');
     }
+    
+    /**
+    * чтение и заполнение RS с данными миграций
+    */
+    protected function readRs()
+    {
+        if (!is_null($this->rs)) {
+            return;
+        }
+        $this->rs=new RecordSet();
+        $this->rs->CursorType =adOpenKeyset;
+        $this->rs->MaxRecords=0;
+        try {
+            $this->rs->Open("select * from migration_versions",$this->connection);
+        } catch (Exception $e){
+            $this->have_db_migration=false;
+        }
+    }
+    
+    protected function askConfirmation(string $question,  InputInterface $input,  OutputInterface $output ) 
+    {
+        return $this->getHelper('question')->ask(
+            $input,
+            $output,
+            new ConfirmationQuestion($question)
+        );
+    }
+
+    protected function canExecute(string $question, InputInterface $input, OutputInterface $output) 
+    {
+        return ! $input->isInteractive() || $this->askConfirmation($question, $input, $output);
+    }
+
 }

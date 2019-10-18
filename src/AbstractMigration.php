@@ -4,16 +4,32 @@ namespace Mf\Migrations;
 
 abstract class AbstractMigration implements MigrationInterface
 {
-    private $sql = [];
-    private $metadata;
-    private $writer;
+    /**массив SQL запросов*/
+    protected $sql = [];
+    
+    /**тип базы данных, по умолчанию mysql*/
+    protected $db_type;
+    
+    /**соединение с базой, экземпляр Connection пакета ADO*/
+    protected $connection;
+    
+    /**специальный флаг, равен true, когда загружается сама таблица миграций*/
+    protected $start_migration_system=false;
 
-    public function __construct(MetadataInterface $metadata, OutputWriter $writer)
+    public function __construct($db_type="mysql",$connection)
     {
-        $this->metadata = $metadata;
-        $this->writer = $writer;
+        $this->db_type = strtolower($db_type);
+        $this->connection=$connection;
     }
-
+    
+    /**
+    * проверим у нас вообще старт миграций?
+    */
+    public function isStartMigrationSystem()
+    {
+        return $this->start_migration_system;
+    }
+    
     /**
      * Add migration query
      *
@@ -32,7 +48,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function getUpSql()
     {
         $this->sql = [];
-        $this->up($this->metadata);
+        $this->up($this->connection);
 
         return $this->sql;
     }
@@ -45,7 +61,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function getDownSql()
     {
         $this->sql = [];
-        $this->down($this->metadata);
+        $this->down($this->connection);
 
         return $this->sql;
     }
