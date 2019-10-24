@@ -36,7 +36,11 @@ return [
 "The <info>%command.name%</info> command outputs the status of a set of migrations:\n<info>%command.full_name%</info>\n"
     =>"Команда <info>%command.name%</info> выводит состояние набора миграций:\n<info>%command.full_name%</info>\n",
     
-    
+    'Execute a single migration version up or down manually.'=>'Выполнить или откатить одну миграцию вручную',
+    'The path to output the migration SQL file instead of executing it. Defaults to current working directory.'=>'Путь и/или имя файла SQL миграции куда будет записаны SQL. По умолчанию используется data/migrations',
+    'Execute the migration as a dry run.'=>"Прогон миграций без реальной загрузки",
+    'Execute the migration up.'=>'Выполнить миграцию',
+    'Execute the migration down.'=>'Откатить миграцию',
     
     "WARNING! You are about to execute a database migration that could result in schema changes and data lost. Are you sure you wish to continue? (y/n)" =>
             "Внимание! Вы собираетесь выполнить миграцию базы данных, которая может привести к изменению схемы и потере данных. Вы уверены, что хотите продолжить? (y/n)",

@@ -30,7 +30,7 @@ class Execute extends AbstractCommand
         $this
             ->setAliases(['execute'])
             ->setDescription(
-                'Execute a single migration version up or down manually.'
+                $this->translator->translate('Execute a single migration version up or down manually.')
             )
             ->addArgument(
                 'version',
@@ -42,26 +42,26 @@ class Execute extends AbstractCommand
                 'write-sql',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'The path to output the migration SQL file instead of executing it. Defaults to current working directory.',
+                $this->translator->translate('The path to output the migration SQL file instead of executing it. Defaults to current working directory.'),
                 false
             )
             ->addOption(
                 'dry-run',
                 null,
                 InputOption::VALUE_NONE,
-                'Execute the migration as a dry run.'
+                $this->translator->translate('Execute the migration as a dry run.')
             )
             ->addOption(
                 'up',
                 null,
                 InputOption::VALUE_NONE,
-                'Execute the migration up.'
+                $this->translator->translate('Execute the migration up.')
             )
             ->addOption(
                 'down',
                 null,
                 InputOption::VALUE_NONE,
-                'Execute the migration down.'
+                $this->translator->translate('Execute the migration down.')
             )
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command executes a single migration version up or down manually:
