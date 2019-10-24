@@ -79,8 +79,9 @@ abstract class AbstractCommand extends Command
     * рекукрсивынй поиск миграций
     * $namespace - пространство имен для выборки, если null то все
     * applied - 1-выбрать только примененные, 0- выбрать только не примененные, null - все
+    * $version - номер версии для поиска в формате 20181214101258, null - не учитывать ее
     */
-    public function  searchMigrations ($namespace=null, $applied=null)
+    public function  searchMigrations ($namespace=null, $applied=null,$version=null)
     {
         $this->counter_executed_migrations=[];
         $dirItr = new RecursiveDirectoryIterator(getcwd(),FilesystemIterator::SKIP_DOTS);
@@ -114,7 +115,10 @@ abstract class AbstractCommand extends Command
             }
             
 
-            if (is_null($applied) || $applied!==(int)$this->rs->EOF) {
+            if (
+                (is_null($applied) || $applied!==(int)$this->rs->EOF) && 
+                (is_null($version) || $version && $version==$matches[2])
+            ) {
                 $classes_rez->append([
                     "class_name"=>$r->getShortName(),
                     "namespace"=>$ns,
@@ -123,8 +127,9 @@ abstract class AbstractCommand extends Command
                     'applied' =>boolval($this->rs->RecordCount),
                 ]);
                 if (!isset($this->counter_executed_migrations[$ns])){
-                    $this->counter_executed_migrations[$ns]=1;
-                } else {
+                    $this->counter_executed_migrations[$ns]=0;
+                } 
+                if (!$this->rs->EOF) {
                     $this->counter_executed_migrations[$ns]++;
                 }
 

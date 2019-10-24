@@ -43,6 +43,7 @@ $application->setHelperSet($helperSet);
 $application->add(new Command\Generate($ServiceManager));
 $application->add(new Command\Status($ServiceManager));
 $application->add(new Command\Migrate($ServiceManager));
+$application->add(new Command\Version($ServiceManager));
 
 
 //$help=new Command\Help();

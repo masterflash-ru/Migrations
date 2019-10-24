@@ -28,11 +28,12 @@ class Status extends AbstractCommand
         $this->addArgument('namespace', InputArgument::OPTIONAL,$this->translator->translate('NameSpace') ,null)
             ->setDescription($this->translator->translate('View the status of a set of migrations.'))
             ->setHelp($this->translator->translate("The <info>%command.name%</info> command outputs the status of a set of migrations:\n<info>%command.full_name%</info>\n"));
+        parent::configure();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        
+
         $namespace=$input->getArgument('namespace');
         
         $outputStyle = new OutputFormatterStyle('red',"default",["bold"]);

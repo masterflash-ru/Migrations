@@ -17,26 +17,26 @@ use Mf\Migrations\MigrationInterface;
 
 
 
-class Migrate extends AbstractCommand
+class Execute extends AbstractCommand
 {
 
 
-    protected static $defaultName = 'migrate';
+    protected static $defaultName = 'execute';
 
 
     protected function configure()
     {
 
         $this
-            ->setAliases(['migrate'])
+            ->setAliases(['execute'])
             ->setDescription(
-                $this->translator->translate('Execute a migration to a specified version or the latest available version.')
+                'Execute a single migration version up or down manually.'
             )
             ->addArgument(
                 'version',
-                InputArgument::OPTIONAL,
-                'The version number (YYYYMMDDHHMMSS) or alias (first, prev, next, latest) to migrate to.',
-                'latest'
+                InputArgument::REQUIRED,
+                'The version to execute.',
+                null
             )
             ->addOption(
                 'write-sql',
@@ -52,34 +52,25 @@ class Migrate extends AbstractCommand
                 'Execute the migration as a dry run.'
             )
             ->addOption(
-                'allow-no-migration',
+                'up',
                 null,
                 InputOption::VALUE_NONE,
-                'Do not throw an exception if no migration is available.'
+                'Execute the migration up.'
             )
             ->addOption(
-                'all-or-nothing',
+                'down',
                 null,
-                InputOption::VALUE_OPTIONAL,
-                'Wrap the entire migration in a transaction.',
-                false
-            )->setHelp(<<<EOT
-The <info>%command.name%</info> command executes a migration to a specified version or the latest available version:
-
-    <info>%command.full_name%</info>
-
-You can optionally manually specify the version you wish to migrate to:
+                InputOption::VALUE_NONE,
+                'Execute the migration down.'
+            )
+            ->setHelp(<<<EOT
+The <info>%command.name%</info> command executes a single migration version up or down manually:
 
     <info>%command.full_name% YYYYMMDDHHMMSS</info>
 
-You can specify the version you wish to migrate to using an alias:
+If no <comment>--up</comment> or <comment>--down</comment> option is specified it defaults to up:
 
-    <info>%command.full_name% prev</info>
-    <info>These alias are defined : first, latest, prev, current and next</info>
-
-You can specify the version you wish to migrate to using an number against the current version:
-
-    <info>%command.full_name% current+3</info>
+    <info>%command.full_name% YYYYMMDDHHMMSS --down</info>
 
 You can also execute the migration as a <comment>--dry-run</comment>:
 
@@ -91,20 +82,23 @@ You can output the would be executed SQL statements to a file with <comment>--wr
 
 Or you can also execute the migration without a warning message which you need to interact with:
 
-    <info>%command.full_name% --no-interaction</info>
-
-You can also time all the different queries if you wanna know which one is taking so long:
-
-    <info>%command.full_name% --query-time</info>
-
-Use the --all-or-nothing option to wrap the entire migration in a transaction.
+    <info>%command.full_name% YYYYMMDDHHMMSS --no-interaction</info>
 EOT
         );
+
+        parent::configure();
 
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $version        = $input->getArgument('version');
+        $dryRun         = (bool) $input->getOption('dry-run');
+        $path           = $input->getOption('write-sql');
+        $direction      = $input->getOption('down') !== false
+            ? 'DOWN'
+            : 'UP';
+
         $question = $this->translator->translate('WARNING! You are about to execute a database migration that could result in schema changes and data lost. Are you sure you wish to continue? (y/n)');;
 
         /*if (! $this->canExecute($question, $input, $output)) {
@@ -113,7 +107,7 @@ EOT
         }*/
         
         //загрузка миграций и выполнение
-        $migrations=$this->searchMigrations(null,0);
+        $migrations=$this->searchMigrations(null,1,$version);
         
         //ищем тип базы данных, по умолчанию это Mysql
         $db_type="mysql";

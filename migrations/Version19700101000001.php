@@ -16,7 +16,7 @@ class Version19700101000001 extends AbstractMigration implements MigrationInterf
         switch ($this->db_type){
             case "mysql":{
                 $this->addSql("CREATE TABLE `migration_versions` (
-                          `version` varchar(20) NOT NULL DEFAULT '' COMMENT 'версия файла (вырезано из имени)',
+                          `version` char(14) NOT NULL DEFAULT 0 COMMENT 'версия файла (вырезано из имени)',
                           `namespace` char(255) DEFAULT NULL COMMENT 'пространство имен',
                           `executed_at` datetime DEFAULT NULL COMMENT 'дата загрузки миграции',
                           `description` char(255) DEFAULT NULL COMMENT 'описание миграции',

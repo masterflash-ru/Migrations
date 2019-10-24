@@ -21,7 +21,8 @@ class Generate extends AbstractCommand
     protected function configure()
     {
 
-        $this->addArgument('namespace', InputArgument::OPTIONAL, $this->translator->translate('NameSpace'));
+        $this->addArgument('namespace', InputArgument::OPTIONAL, $this->translator->translate('NameSpace'))
+            ->setDescription($this->translator->translate('Generate a blank migration class.'));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
