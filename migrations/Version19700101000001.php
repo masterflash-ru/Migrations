@@ -20,8 +20,7 @@ class Version19700101000001 extends AbstractMigration implements MigrationInterf
                           `namespace` char(255) DEFAULT NULL COMMENT 'пространство имен',
                           `executed_at` datetime DEFAULT NULL COMMENT 'дата загрузки миграции',
                           `description` char(255) DEFAULT NULL COMMENT 'описание миграции',
-                          PRIMARY KEY (`version`),
-                          KEY `namespace` (`namespace`)
+                          PRIMARY KEY (`version`,`namespace`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
                 $this->addSql('insert into `migration_versions` (`version`, `namespace`, `executed_at`,`description`)
                                 value ("19700101000001","Mf\\\\Migrations",now(),"Сама система миграции") ');

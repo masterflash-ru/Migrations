@@ -106,12 +106,12 @@ EOT
         $question = $this->translator->translate('WARNING! You are about to add, delete or synchronize migration versions from the version table that could result in data lost. Are you sure you wish to continue? (y/n)');;
 
         if (! $this->canExecute($question, $input, $output)) {
-            $output->writeln('<error>'.$this->translator->translate("Migration cancelled!").'</error>');
+            throw new Exception\RuntimeException($this->translator->translate('Migration cancelled!'));
             return 1;
         }
         $migrations=$this->searchMigrations(null,(int)$input->getOption('delete'),$affectedVersion);
         if (count($migrations)==0) {
-            $output->writeln('<error>'.$this->translator->translate("Migration not found!").'</error>');
+            throw new Exception\RuntimeException($this->translator->translate('Migration not found!'));
             return 1;
         }
         

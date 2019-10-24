@@ -28,7 +28,6 @@ class Migrate extends AbstractCommand
     {
 
         $this
-            ->setAliases(['migrate'])
             ->setDescription(
                 $this->translator->translate('Execute a migration to a specified version or the latest available version.')
             )
