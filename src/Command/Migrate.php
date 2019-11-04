@@ -279,7 +279,8 @@ EOT
                     if (!$dryRun && !$path){
                         if ($m["action"]=="DOWN"){
                             //откат
-                            $this->connection->Execute("delete from migration_versions where version='{$m["version"]}' and namespace='{$m["namespace"]}'");
+                            $ns1=str_replace('\\','\\\\',$m["namespace"]);
+                            $this->connection->Execute("delete from migration_versions where version='{$m["version"]}' and namespace='{$ns1}'");
                         } else {
                             //накат
                             //запишем в таблицу загрузку

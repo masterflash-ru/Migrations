@@ -35,6 +35,14 @@ class Version19700101000001 extends AbstractMigration implements MigrationInterf
 
     public function down($schema)
     {
-        $this->addSql("drop table migration_versions");
+        switch ($this->db_type){
+            case "mysql":{
+                 $this->addSql("drop table migration_versions");
+                break;
+            }
+            default:{
+                throw new \Exception("the database {$this->db_type} is not supported !");
+            }
+        }
     }
 }

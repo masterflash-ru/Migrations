@@ -61,13 +61,29 @@ class %s extends AbstractMigration implements MigrationInterface
 
     public function up($schema)
     {
-        //$this->addSql(/*Sql instruction*/);
+        switch ($this->db_type){
+            case "mysql":{
+                $this->addSql("*Sql instruction*");
+                break;
+            }
+            default:{
+                throw new \Exception("the database {$this->db_type} is not supported !");
+            }
+        }
     }
 
     public function down($schema)
     {
         //throw new \RuntimeException(\'No way to go down!\');
-        //$this->addSql(/*Sql instruction*/);
+        switch ($this->db_type){
+            case "mysql":{
+                $this->addSql("*Sql instruction*");
+                break;
+            }
+            default:{
+                throw new \Exception("the database {$this->db_type} is not supported !");
+            }
+        }
     }
 }
 ', $migrationNamespace, $className);
