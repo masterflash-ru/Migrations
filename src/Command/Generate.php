@@ -53,18 +53,18 @@ class Generate extends AbstractCommand
 namespace %s;
 
 use Mf\Migrations\AbstractMigration;
-use Zend\Db\Metadata\MetadataInterface;
+use Mf\Migrations\MigrationInterface;
 
-class %s extends AbstractMigration
+class %s extends AbstractMigration implements MigrationInterface
 {
     public static $description = "Migration description";
 
-    public function up(MetadataInterface $schema)
+    public function up($schema)
     {
         //$this->addSql(/*Sql instruction*/);
     }
 
-    public function down(MetadataInterface $schema)
+    public function down($schema)
     {
         //throw new \RuntimeException(\'No way to go down!\');
         //$this->addSql(/*Sql instruction*/);

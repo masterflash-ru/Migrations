@@ -298,7 +298,9 @@ EOT
             }
         } catch (ADOException $e){
             //если ошибка SQL откатываем все и продолжим исключение
-            $this->connection->RollbackTrans();
+            if (!$dryRun && !$path && $do_transact){
+                $this->connection->RollbackTrans();
+            }
             throw new Exception\RuntimeException($e->getMessage());
         }
     }
