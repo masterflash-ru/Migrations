@@ -45,7 +45,7 @@ class Status extends AbstractCommand
         $table ->addRow(['>> '.$this->translator->translate("Connection name:"),  $this->config['migrations']["connection"]] );
         $table ->addRow(['>> '.$this->translator->translate("Database Name:"),  $this->connection->Database] );
         $table ->addRow(['>> '.$this->translator->translate("Migrations Directory:"),  $this->config['migrations']["dir"] ]);
-        $table ->addRow(['>> '.$this->translator->translate("Default Namespace:"),  $this->config['migrations']["default_namespace"] ]);
+        //$table ->addRow(['>> '.$this->translator->translate("Default Namespace:"),  $this->config['migrations']["default_namespace"] ]);
         $this->readRs();
         $table ->addRow(['>> '.$this->translator->translate("Total Executed Migrations:"),  $this->rs->RecordCount ]);
         $table->setStyle('compact');
@@ -79,7 +79,7 @@ class Status extends AbstractCommand
             $last_version=0; //последняя из загруженных
             $new=[];
             foreach ($migrations as $m){
-                if (empty($version) && $m['applied']){
+                if ($m['applied']){
                     $version= $this->datetimeFormat($m["version"])." ({$m["version"]})";
                 }
                 if (empty($next_version) && !$m['applied']){

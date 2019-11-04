@@ -83,6 +83,12 @@ abstract class AbstractCommand extends Command
     */
     public function  searchMigrations ($namespace=null, $applied=null,$version=null)
     {
+        $alias=null;
+        if (in_array($version,['first', 'prev', 'next', 'latest'])){
+            $alias=$version;
+            $version=null;
+        }
+        
         $this->counter_executed_migrations=[];
         $dirItr = new RecursiveDirectoryIterator(getcwd(),FilesystemIterator::SKIP_DOTS);
         $filterItr = new MigrationsFilterIterator($dirItr);
@@ -185,4 +191,26 @@ abstract class AbstractCommand extends Command
         return ! $input->isInteractive() || $this->askConfirmation($question, $input, $output);
     }
 
+    /**
+    * обработка пути, если ввели параметр write-sql
+    * на выходе строка
+    */
+    protected function doPatch($path)
+    {
+        //поработаем с путем, если указали опцию write-sql
+        if ($path !== false){
+            $now =  new DateTimeImmutable();
+            if (is_dir($path)) {
+                $path  = realpath($path);
+                $path .= '/data/migrations/' . $now->format('YmdHis') . '.sql';
+            } else {
+                if ($path){
+                    $path = getcwd()."/data/migrations/".$path;
+                } else {
+                    $path = getcwd()."/data/migrations/". $now->format('YmdHis') . '.sql';
+                }
+            }
+        }
+        return $path;
+    }
 }

@@ -6,7 +6,7 @@ namespace Mf\Migrations;
 return [
     'migrations' => [
         'dir' => './data/migrations',
-        'default_namespace' => 'Application',
+        /*'default_namespace' => 'Application',*/
         "connection" =>"DefaultSystemDb",
     ],
 ];

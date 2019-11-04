@@ -102,6 +102,7 @@ EOT
         $direction      = $input->getOption('down') !== false
             ? $applied=1    //выбрать только загруженные, для down
             : $applied=0;   //выбрать только не загруженные, для up
+        $path=$this->doPatch($path);
 
         $question = $this->translator->translate('WARNING! You are about to execute a database migration that could result in schema changes and data lost. Are you sure you wish to continue? (y/n)');;
         if (!$dryRun && !$path){
@@ -133,6 +134,7 @@ EOT
         }
         
         try {
+            $do_transact=false;
             foreach ($migrations as $m){
                 $output->writeln(PHP_EOL."<info>".$this->translator->translate("NameSpace:")."  ".$m["namespace"]."</info>");
                 $output->writeln("<info>SQL:</info>");
@@ -152,6 +154,7 @@ EOT
                 $to_file="";
                 if (!$dryRun && !$path){
                     $this->connection->BeginTrans();
+                    $do_transact=true;
                 }
                 foreach ($sql_array as $sql){
                     $to_file.=$sql."\n";
@@ -162,14 +165,6 @@ EOT
                 }
                 //записываем, если есть что
                 if ($to_file && $path !== false){
-
-                    $now =  new DateTimeImmutable();
-                    if (is_dir($path)) {
-                        $path  = realpath($path);
-                        $path .= '/data/migrations/' . $now->format('YmdHis') . '.sql';
-                    } else {
-                        $path = getcwd()."/data/migrations/".$path;
-                    }
                     if (!file_put_contents($path, $to_file)){
                          throw new Exception\RuntimeException($this->translator->translate('Unable to create file').": {$path}");
                     }
@@ -177,6 +172,7 @@ EOT
                 }
 
                 if ($class->isStartMigrationSystem()){
+                    $this->connection->CommitTrans();
                     //если у нас вообще старт системы миграции, то прерываем все и выводим что 
                     //нужно запустить процесс миграции вновь
                     $outputStyle = new OutputFormatterStyle('green', 'default', ['bold', 'blink']);
@@ -201,7 +197,7 @@ EOT
                 }
                 $output->writeln('<info>'.$m["version"].' - OK</info>');
             }
-            if (!$dryRun && !$path){
+            if (!$dryRun && !$path && $do_transact){
                 $this->connection->CommitTrans();
             }
         } catch (ADOException $e){
