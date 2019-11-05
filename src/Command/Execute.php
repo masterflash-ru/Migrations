@@ -143,6 +143,11 @@ EOT
                 if (!$class instanceof MigrationInterface){
                     continue;
                 }
+                //проверим наличие таблицы с миграциями
+                if (!$this->have_db_migration && !$class->isStartMigrationSystem()){
+                    throw new Exception\RuntimeException($this->translator->translate("Migrations table not found in database"));
+                }
+
                 if ($applied){
                     //откат
                     $sql_array=$class->getDownSql();
@@ -170,14 +175,14 @@ EOT
                     }
                     return 0;
                 }
+                
+                
 
                 if ($class->isStartMigrationSystem()){
                     $this->connection->CommitTrans();
                     //если у нас вообще старт системы миграции, то прерываем все и выводим что 
                     //нужно запустить процесс миграции вновь
-                    $outputStyle = new OutputFormatterStyle('green', 'default', ['bold', 'blink']);
-                    $output->getFormatter()->setStyle('startmigration', $outputStyle);
-                    $output->writeln('<startmigration> => '.$this->translator->translate('The migration system is initialized, reload the migrations!').' <=</startmigration>');
+                    $output->writeln('<info>'.$m["version"].' - OK</info>');
                     return 0 ;
                 }
                 if (!$dryRun && !$path){
@@ -201,6 +206,8 @@ EOT
             if (!$dryRun && !$path && $do_transact){
                 $this->connection->CommitTrans();
             }
+        } catch (Exception\RuntimeException $e){
+            throw new Exception\RuntimeException($e->getMessage());
         } catch (ADOException $e){
             //если ошибка SQL откатываем все и продолжим исключение
             $this->connection->RollbackTrans();

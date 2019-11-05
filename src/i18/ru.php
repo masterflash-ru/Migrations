@@ -18,6 +18,8 @@ return [
     "Available Migration Versions:" =>  "Доступные миграци версий:",
     "Migration cancelled!"          =>  "Загрузка миграции отменена",
     "Unable to create file"         =>  "Невозможно создать файл",
+    "Migration not found!"          =>  "Миграция не найдена",
+    "Migrations table not found in database"=>"Таблица с миграциями не обнаружена в базе данных",
     "The migration system is initialized, reload the migrations!"=>"Система миграций инициализирована, выполните загрузку миграций повторно!",
     "Manually add and delete migration versions from the version table."=>"Ручное добавление/удаление миграций в таблицу, без их выполнения",
     "The version to add or delete."=>"Версия миграции для добавления/удаления",
