@@ -76,14 +76,6 @@ If you want to synchronize by adding or deleting all migration versions availabl
     <info>%command.full_name% --add --all</info>
     <info>%command.full_name% --delete --all</info>
 
-If you want to synchronize by adding or deleting some range of migration versions available in the version table you can use the <comment>--range-from/--range-to</comment> option:
-
-    <info>%command.full_name% --add --range-from=YYYYMMDDHHMMSS --range-to=YYYYMMDDHHMMSS</info>
-    <info>%command.full_name% --delete --range-from=YYYYMMDDHHMMSS --range-to=YYYYMMDDHHMMSS</info>
-
-You can also execute this command without a warning message which you need to interact with:
-
-    <info>%command.full_name% --no-interaction</info>
 EOT
             );
 
@@ -107,12 +99,10 @@ EOT
 
         if (! $this->canExecute($question, $input, $output)) {
             throw new Exception\RuntimeException($this->translator->translate('Migration cancelled!'));
-            return 1;
         }
         $migrations=$this->searchMigrations(null,(int)$input->getOption('delete'),$affectedVersion);
         if (count($migrations)==0) {
             throw new Exception\RuntimeException($this->translator->translate('Migration not found!'));
-            return 1;
         }
         
         if ($input->getOption('add')){
