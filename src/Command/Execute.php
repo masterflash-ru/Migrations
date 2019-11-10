@@ -163,6 +163,7 @@ EOT
                 }
                 foreach ($sql_array as $sql){
                     $to_file.=$sql."\n";
+                    $sql=addcslashes($sql,'$\\');
                     $output->writeln($sql.PHP_EOL);
                     if (!$dryRun && !$path){
                         $this->connection->Execute($sql);

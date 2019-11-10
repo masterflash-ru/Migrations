@@ -252,6 +252,7 @@ EOT
                 //собственно выполнение SQL или запись в файл
                 $to_file="";
                 foreach ($sql_array as $sql){
+                    $sql=addcslashes($sql,'$\\');
                     $to_file.=$sql."\n";
                     $output->writeln($sql.PHP_EOL);
                     if (!$dryRun && !$path){
