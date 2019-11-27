@@ -59,7 +59,7 @@ class %s extends AbstractMigration implements MigrationInterface
 {
     public static $description = "Migration description";
 
-    public function up($schema)
+    public function up($schema, $adapter)
     {
         switch ($this->db_type){
             case "mysql":{
@@ -72,7 +72,7 @@ class %s extends AbstractMigration implements MigrationInterface
         }
     }
 
-    public function down($schema)
+    public function down($schema, $adapter)
     {
         //throw new \RuntimeException(\'No way to go down!\');
         switch ($this->db_type){
