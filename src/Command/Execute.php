@@ -163,7 +163,7 @@ EOT
                 }
                 foreach ($sql_array as $sql){
                     $to_file.=$sql."\n";
-                    $sql=addcslashes($sql,'$\\');
+                    //$sql=addcslashes($sql,'$');
                     $output->writeln($sql.PHP_EOL);
                     if (!$dryRun && !$path){
                         $this->connection->Execute($sql);
@@ -189,8 +189,10 @@ EOT
                 if (!$dryRun && !$path){
                     if ($applied){
                         //откат
-                        $ns1=str_replace('\\','\\\\',$m["namespace"]);
-                        $this->connection->Execute("delete from migration_versions where version='{$m["version"]}' and namespace='{$ns1}'");
+                        if ($m["version"]!='19700101000001' && $m["namespace"]!='Mf\Migrations'){
+                            $ns1=str_replace('\\','\\\\',$m["namespace"]);
+                            $this->connection->Execute("delete from migration_versions where version='{$m["version"]}' and namespace='{$ns1}'");
+                        }
                     } else {
                         //накат
                         //запишем в таблицу загрузку

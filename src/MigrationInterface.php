@@ -1,6 +1,9 @@
 <?php
 namespace Mf\Migrations;
 
+use ADO\Service\Connection;
+use Zend\Db\Adapter\Adapter;
+
 
 interface MigrationInterface
 {
@@ -23,12 +26,12 @@ interface MigrationInterface
      *
      * @param MetadataInterface $schema
      */
-    public function up(MetadataInterface $schema);
+    public function up(Connection $schema,Adapter $adapter);
 
     /**
      * Rollback migration
      *
      * @param MetadataInterface $schema
      */
-    public function down(MetadataInterface $schema);
+    public function down(Connection $schema,Adapter $adapter);
 }

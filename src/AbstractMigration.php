@@ -1,6 +1,10 @@
 <?php
 namespace Mf\Migrations;
 
+use Zend\Db\Sql\Ddl\SqlInterface;
+use Zend\Db\Sql\SqlInterface as SqlInterfaceIO;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Ddl;
 
 abstract class AbstractMigration implements MigrationInterface
 {
@@ -15,11 +19,18 @@ abstract class AbstractMigration implements MigrationInterface
     
     /**специальный флаг, равен true, когда загружается сама таблица миграций*/
     protected $start_migration_system=false;
+    
+    /**Инициализированный адаптер ZF3*/
+    protected $adapter;
+    
+    /**опция для Mysql при создании таблицы, если нужен MyiSam - просто определите его у себя в миграции */
+    protected $mysql_add_create_table=" ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
     public function __construct($db_type="mysql",$connection)
     {
         $this->db_type = strtolower($db_type);
         $this->connection=$connection;
+        $this->adapter=$connection->getZfAdapter();
     }
     
     /**
@@ -33,10 +44,21 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Add migration query
      *
-     * @param string $sql
+     * @param string $sql | Zend\Db\Sql\Ddl\SqlInterface
      */
     protected function addSql($sql)
     {
+        if ($sql instanceof SqlInterface || $sql instanceof SqlInterfaceIO){
+            $s=new Sql($this->adapter);
+            if ($sql instanceof Ddl\CreateTable  && $this->db_type=="mysql"){
+                //костыли для Mysql, добавление строки имени движка и кодировки
+                $add=$this->mysql_add_create_table;
+            } else {
+                $add="";
+            }
+            //исключим двойное экранирование
+            $sql=stripslashes($s->buildSqlString($sql).$add);
+        }
         $this->sql[] = $sql;
     }
 
@@ -48,7 +70,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function getUpSql()
     {
         $this->sql = [];
-        $this->up($this->connection);
+        $this->up($this->connection,$this->adapter);
 
         return $this->sql;
     }
@@ -61,7 +83,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function getDownSql()
     {
         $this->sql = [];
-        $this->down($this->connection);
+        $this->down($this->connection,$this->adapter);
 
         return $this->sql;
     }
