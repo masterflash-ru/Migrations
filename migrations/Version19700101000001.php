@@ -17,7 +17,7 @@ class Version19700101000001 extends AbstractMigration implements MigrationInterf
         $table = new Ddl\CreateTable("migration_versions");
         $table->addColumn(new Ddl\Column\Varchar('version',14,false,"00000000000000",["COMMENT"=>"версия файла (вырезано из имени)"]));
         $table->addColumn(new Ddl\Column\Varchar('namespace', 255,true,null,["COMMENT"=>"пространство имен"]));
-        $table->addColumn(new Ddl\Column\Datetime('executed_at', true,null,["COMMENT"=>"дата загрузки миграции"]));
+        $table->addColumn(new Ddl\Column\Timestamp('executed_at', true,null,["COMMENT"=>"дата загрузки миграции"]));
         $table->addColumn(new Ddl\Column\Varchar('description', 255,true,null,["COMMENT"=>"описание миграции"]));
         $table->addConstraint(
             new Ddl\Constraint\PrimaryKey(['version', 'namespace'])
