@@ -1,10 +1,10 @@
 <?php
 namespace Mf\Migrations;
 
-use Zend\Db\Sql\Ddl\SqlInterface;
-use Zend\Db\Sql\SqlInterface as SqlInterfaceIO;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Ddl;
+use Laminas\Db\Sql\Ddl\SqlInterface;
+use Laminas\Db\Sql\SqlInterface as SqlInterfaceIO;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Ddl;
 
 abstract class AbstractMigration implements MigrationInterface
 {
@@ -44,7 +44,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Add migration query
      *
-     * @param string $sql | Zend\Db\Sql\Ddl\SqlInterface
+     * @param string $sql | Laminas\Db\Sql\Ddl\SqlInterface
      */
     protected function addSql($sql)
     {

@@ -10,8 +10,8 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 
-use Zend\Mvc\Application as ZfApplication;
-use Zend\Stdlib\ArrayUtils;
+use Laminas\Mvc\Application as ZfApplication;
+use Laminas\Stdlib\ArrayUtils;
 
 
 
@@ -36,7 +36,7 @@ $zf=ZfApplication::init($appConfig);
 $ServiceManager=$zf->getServiceManager();
 
 
-$application = new Application('Zend Framework Migration','0.0.1');
+$application = new Application('Laminas Framework Migration','0.0.1');
 $helperSet=new helperSet();
 $helperSet->set(new QuestionHelper(), 'question');
 $application->setHelperSet($helperSet);

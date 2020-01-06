@@ -2,7 +2,7 @@
 namespace Mf\Migrations;
 
 use ADO\Service\Connection;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Adapter;
 
 
 interface MigrationInterface

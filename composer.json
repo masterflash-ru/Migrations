@@ -10,10 +10,10 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.1",
-        "masterflash-ru/ado": "^2.0",
+        "php": "^7.2",
+        "masterflash-ru/ado": "^2.2",
         "symfony/console": "^4.3",
-        "zendframework/zend-i18n": "^2.9"
+        "laminas/laminas-i18n": "^2.9"
     },
     "autoload": {
         "psr-4": {
